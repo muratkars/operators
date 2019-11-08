@@ -1,18 +1,14 @@
-{{- if .Values.webhook.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "openebs.fullname" . }}-admission-server
+  name: {{ .OperatorName }}-admission-server
+  namespace: {{ .Namespace }}
   labels:
     app: admission-webhook
-    chart: {{ template "openebs.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-    component: admission-webhook
     openebs.io/component-name: admission-webhook
-    openebs.io/version: {{ .Values.release.version }}
+    openebs.io/version: {{ .Params.APP_VERSION }}
 spec:
-  replicas: {{ .Values.webhook.replicas }}
+  replicas: 1
   strategy:
     type: "Recreate"
     rollingUpdate: null
@@ -24,27 +20,14 @@ spec:
       labels:
         app: admission-webhook
         name: admission-webhook
-        release: {{ .Release.Name }}
-        openebs.io/version: {{ .Values.release.version }}
+        openebs.io/version: {{ .Params.APP_VERSION }}
         openebs.io/component-name: admission-webhook
     spec:
-{{- if .Values.webhook.nodeSelector }}
-      nodeSelector:
-{{ toYaml .Values.webhook.nodeSelector | indent 8 }}
-{{- end }}
-{{- if .Values.webhook.tolerations }}
-      tolerations:
-{{ toYaml .Values.webhook.tolerations | indent 8 }}
-{{- end }}
-{{- if .Values.webhook.affinity }}
-      affinity:
-{{ toYaml .Values.webhook.affinity | indent 8 }}
-{{- end }}
-      serviceAccountName: {{ template "openebs.serviceAccountName" . }}
+      serviceAccountName: {{ .OperatorName }}-maya-operator
       containers:
         - name: admission-webhook
-          image: "{{ .Values.webhook.image }}:{{ .Values.webhook.imageTag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: quay.io/openebs/admission-server:{{ .Params.APP_VERSION }}
+          imagePullPolicy: {{ .Params.IMAGE_PULLPOLICY }}
           args:
             - -tlsCertFile=/etc/webhook/certs/cert.pem
             - -tlsKeyFile=/etc/webhook/certs/key.pem
@@ -59,4 +42,3 @@ spec:
         - name: webhook-certs
           secret:
             secretName: admission-server-certs
-{{- end }}

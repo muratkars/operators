@@ -1,40 +1,37 @@
-{{- if .Values.localprovisioner.enabled }}
+{{- if .Params.LOCALPV_ENABLED }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "openebs.fullname" . }}-localpv-provisioner
+  name: {{ .OperatorName }}-localpv-provisioner
+  namespace: {{ .Namespace }}
   labels:
-    app: {{ template "openebs.name" . }}
-    chart: {{ template "openebs.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    app: {{ .OperatorName }}
+    name: {{ .OperatorName }}-localpv-provisioner
     component: localpv-provisioner
     openebs.io/component-name: openebs-localpv-provisioner
-    openebs.io/version: {{ .Values.release.version }}
+    openebs.io/version: {{ .Params.APP_VERSION }}
 spec:
-  replicas: {{ .Values.localprovisioner.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .OperatorName }}
+  replicas: {{ .Params.LOCALPV.REPLICAS }}
   strategy:
     type: "Recreate"
     rollingUpdate: null
-  selector:
-    matchLabels:
-      app: {{ template "openebs.name" . }}
-      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "openebs.name" . }}
-        release: {{ .Release.Name }}
+        app: {{ .OperatorName }}
         component: localpv-provisioner
         name: openebs-localpv-provisioner
         openebs.io/component-name: openebs-localpv-provisioner
-        openebs.io/version: {{ .Values.release.version }}
+        openebs.io/version: {{ .Params.APP_VERSION }}
     spec:
-      serviceAccountName: {{ template "openebs.serviceAccountName" . }}
+      serviceAccountName: {{ .OperatorName }}-maya-operator
       containers:
-      - name: {{ template "openebs.name" . }}-localpv-provisioner
-        image: "{{ .Values.localprovisioner.image }}:{{ .Values.localprovisioner.imageTag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      - name: {{ .OperatorName }}-localpv-provisioner
+        image: quay.io/openebs/provisioner-localpv:{{ .Params.APP_VERSION }}
+        imagePullPolicy: {{ .Params.IMAGE_PULLPOLICY }}
         env:
         # OPENEBS_IO_K8S_MASTER enables openebs provisioner to connect to K8s
         # based on this address. This is ignored if empty.
@@ -49,7 +46,7 @@ spec:
         # OPENEBS_NAMESPACE is the namespace that this provisioner will
         # lookup to find maya api service
         - name: OPENEBS_NAMESPACE
-          value: "{{ .Release.Namespace }}"
+          value: "{{ .Namespace }}"
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -57,30 +54,30 @@ spec:
         # OPENEBS_IO_BASE_PATH is the environment variable that provides the
         # default base path on the node where host-path PVs will be provisioned.
         - name: OPENEBS_IO_ENABLE_ANALYTICS
-          value: "{{ .Values.analytics.enabled }}"
+          value: "{{ .Params.ANALYTICS_ENABLED }}"
         - name: OPENEBS_IO_BASE_PATH
-          value: "{{ .Values.localprovisioner.basePath }}"
+          value: "{{ .Params.LOCALPV_BASEPATH_DIR }}"
         - name: OPENEBS_IO_HELPER_IMAGE
-          value: "{{ .Values.localprovisioner.helperImage }}:{{ .Values.localprovisioner.helperImageTag }}"
+          value: quay.io/openebs/openebs-tools:{{ .Params.LOCALPV_HELPER_IMAGE_VERSION }}
         - name: OPENEBS_IO_INSTALLER_TYPE
-          value: "charts-helm"
+          value: "kudo-operator"
         livenessProbe:
           exec:
             command:
             - pgrep
             - ".*localpv"
-          initialDelaySeconds: {{ .Values.localprovisioner.healthCheck.initialDelaySeconds }}
-          periodSeconds: {{ .Values.localprovisioner.healthCheck.periodSeconds }}
-{{- if .Values.localprovisioner.nodeSelector }}
+          initialDelaySeconds: {{ .Params.LOCALPV_HC_DELAY }}
+          periodSeconds: {{ .Params.LOCALPV_HC_PERIOD }}
+{{- if .Params.LOCALPV_NODE_SELECTOR }}
       nodeSelector:
-{{ toYaml .Values.localprovisioner.nodeSelector | indent 8 }}
+{{ toYaml .Params.LOCALPV_NODE_SELECTOR | indent 8 }}
 {{- end }}
-{{- if .Values.localprovisioner.tolerations }}
+{{- if .Params.LOCALPV_NODE_TOLERATIONS }}
       tolerations:
-{{ toYaml .Values.localprovisioner.tolerations | indent 8 }}
+{{ toYaml .Params.LOCALPV_NODE_TOLERATIONS | indent 8 }}
 {{- end }}
-{{- if .Values.localprovisioner.affinity }}
+{{- if .Params.LOCALPV_NODE_AFFINITY }}
       affinity:
-{{ toYaml .Values.localprovisioner.affinity | indent 8 }}
+{{ toYaml .Params.LOCALPV_NODE_AFFINITY | indent 8 }}
 {{- end }}
 {{- end }}

@@ -1,50 +1,48 @@
-{{- if .Values.ndmOperator.enabled }}
+{{- if .Params.NDM_OPERATOR_ENABLED }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "openebs.fullname" . }}-ndm-operator
+  name: {{ .OperatorName }}-ndm-operator
+  namespace: {{ .Namespace }}
   labels:
-    app: {{ template "openebs.name" . }}
-    chart: {{ template "openebs.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    app: {{ .OperatorName }}
     component: ndm-operator
     openebs.io/component-name: ndm-operator
-    openebs.io/version: {{ .Values.release.version }}
+    openebs.io/version: {{ .Params.APP_VERSION }}
     name: ndm-operator
 spec:
-  replicas: {{ .Values.ndmOperator.replicas }}
+  replicas: {{ .Params.NDM_OPERATOR_REPLICAS }}
   strategy:
     type: "Recreate"
     rollingUpdate: null
   selector:
     matchLabels:
-      app: {{ template "openebs.name" . }}
-      release: {{ .Release.Name }}
+      app: {{ .OperatorName }}
+      name: openebs-ndm-operator
+      openebs.io/component-name: ndm-operator
   template:
     metadata:
       labels:
-        app: {{ template "openebs.name" . }}
-        release: {{ .Release.Name }}
+        app: {{ .OperatorName }}
         component: ndm-operator
         name: ndm-operator
         openebs.io/component-name: ndm-operator
-        openebs.io/version: {{ .Values.release.version }}
+        openebs.io/version: {{ .Params.APP_VERSION }}
     spec:
-      serviceAccountName: {{ template "openebs.serviceAccountName" . }}
+      serviceAccountName: {{ .OperatorName }}-maya-operator
       containers:
-      - name: {{ template "openebs.fullname" . }}-ndm-operator
-        image: "{{ .Values.ndmOperator.image }}:{{ .Values.ndmOperator.imageTag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      - name: {{ .OperatorName }}-ndm-operator
+        image: quay.io/openebs/node-disk-operator-amd64:{{ .Params.NDM_VERSION }}
+        imagePullPolicy: {{ .Params.IMAGE_PULLPOLICY }}
         readinessProbe:
           exec:
             command:
             - stat
             - /tmp/operator-sdk-ready
-          initialDelaySeconds: {{ .Values.ndmOperator.readinessCheck.initialDelaySeconds }}
-          periodSeconds: {{ .Values.ndmOperator.readinessCheck.periodSeconds }}
-          failureThreshold: {{ .Values.ndmOperator.readinessCheck.failureThreshold }}
+          initialDelaySeconds: {{ .Params.NDM_OPERATOR_READINESS_DELAY }}
+          periodSeconds: {{ .Params.NDM_OPERATOR_READINESS_PERIOD }}
+          failureThreshold: {{ .Params.NDM_OPERATOR_FAILURE_THRESHOLD }}
         env:
         - name: WATCH_NAMESPACE
           valueFrom:
@@ -54,16 +52,21 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+            # the service account of the ndm-operator pod
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
         - name: OPERATOR_NAME
           value: "node-disk-operator"
         - name: CLEANUP_JOB_IMAGE
-          value: "{{ .Values.ndmOperator.cleanupImage }}:{{ .Values.ndmOperator.cleanupImageTag }}"
-{{- if .Values.ndmOperator.nodeSelector }}
+          value: quay.io/openebs/linux-utils:{{ .Params.NDM_OPERATOR_CI_VERSION }}
+{{- if .Params.NDM_OPERATOR_NODE_SELECTOR }}
       nodeSelector:
-{{ toYaml .Values.ndmOperator.nodeSelector | indent 8 }}
+{{ toYaml .Params.NDM_OPERATOR_NODE_SELECTOR | indent 8 }}
 {{- end }}
-{{- if .Values.ndmOperator.tolerations }}
+{{- if .Params.NDM_OPERATOR_TOLERATIONS }}
       tolerations:
-{{ toYaml .Values.ndmOperator.tolerations | indent 8 }}
+{{ toYaml .Params.NDM_OPERATOR_TOLERATIONS | indent 8 }}
 {{- end }}
 {{- end }}

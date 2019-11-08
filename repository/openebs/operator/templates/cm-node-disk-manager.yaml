@@ -1,15 +1,16 @@
-{{- if .Values.ndm.enabled }}
+{{- if .Params.NDM_ENABLED }}
 # This is the node-disk-manager related config.
 # It can be used to customize the disks probes and filters
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "openebs.fullname" . }}-ndm-config
+  name: {{ .OperatorName }}-ndm-config
+  namespace: {{ .Namespace }}
+    app: {{ .OperatorName }}
+    component: ndm-config
+    name: ndm-config
   labels:
-    app: {{ template "openebs.name" . }}
-    chart: {{ template "openebs.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    app: {{ .OperatorName }}
     component: ndm-config
     openebs.io/component-name: ndm-config
 data:
@@ -23,7 +24,7 @@ data:
         state: true
       - key: seachest-probe
         name: seachest probe
-        state: {{ .Values.ndm.probes.enableSeachest }}
+        state: false
       - key: smart-probe
         name: smart probe
         state: true
@@ -36,11 +37,11 @@ data:
         name: vendor filter
         state: true
         include: ""
-        exclude: "{{ .Values.ndm.filters.excludeVendors }}"
+        exclude: "{{ .Params.NDM_FILTERS_EXCLUDE_VENDORS }}"
       - key: path-filter
         name: path filter
         state: true
-        include: "{{ .Values.ndm.filters.includePaths }}"
-        exclude: "{{ .Values.ndm.filters.excludePaths }}"
+        include: "{{ .Params.NDM_FILTERS_INCLUDE_PATHS }}"
+        exclude: "{{ .Params.NDM_FILTERS_EXCLUDE_PATHS }}"
 ---
 {{- end }}

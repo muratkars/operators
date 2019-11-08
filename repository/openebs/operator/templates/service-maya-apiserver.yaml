@@ -1,23 +1,30 @@
-{{- if .Values.apiserver.enabled }}
+{{ if eq .Params.RBAC_ENABLED "true" }}
 apiVersion: v1
 kind: Service
-metadata:
-  name: {{ template "openebs.fullname" . }}-apiservice
+  name: maya-apiserver
   labels:
-    app: {{ template "openebs.name" . }}
-    chart: {{ template "openebs.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    app: {{ .OperatorName }}
+    component: apiserver
+    name: maya-apiserver
+    openebs.io/component-name: maya-apiserver
+    openebs.io/version: {{ .Params.APP_VERSION }}
+metadata:
+  name: maya-apiserver-service
+  namespace: {{ .Namespace }}
+  labels:
+    app: {{ .OperatorName }}
+    component: apiserver
+    name: maya-apiserver-service
     openebs.io/component-name: maya-apiserver-svc
+    openebs.io/version: {{ .Params.APP_VERSION }}
 spec:
   ports:
   - name: api
-    port: {{ .Values.apiserver.ports.externalPort }}
-    targetPort: {{ .Values.apiserver.ports.internalPort }}
+    port: {{ .Params.APISERVER_PORT_EXT }}
+    targetPort: {{ .Params.APISERVER_PORT_INT }}
     protocol: TCP
   selector:
-    app: {{ template "openebs.name" . }}
-    release: {{ .Release.Name }}
+    app: {{ .OperatorName }}
     component: apiserver
   sessionAffinity: None
 {{- end }}

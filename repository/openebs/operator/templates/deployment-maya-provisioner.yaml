@@ -1,41 +1,39 @@
-{{- if .Values.provisioner.enabled }}
+{{- if .Params.PROVISIONER_ENABLED }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "openebs.fullname" . }}-provisioner
+  name: {{ .OperatorName }}-provisioner
+  namespace: {{ .Namespace }}
   labels:
-    app: {{ template "openebs.name" . }}
-    chart: {{ template "openebs.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    app: {{ .OperatorName }}
     component: provisioner
     name: openebs-provisioner
     openebs.io/component-name: openebs-provisioner
-    openebs.io/version: {{ .Values.release.version }}
+    openebs.io/version: {{ .Params.APP_VERSION }}
 spec:
-  replicas: {{ .Values.provisioner.replicas }}
-  strategy:
-    type: "Recreate"
-    rollingUpdate: null
   selector:
     matchLabels:
-      app: {{ template "openebs.name" . }}
-      release: {{ .Release.Name }}
+      app: {{ .OperatorName }}
+      name: openebs-provisioner
+      openebs.io/component-name: openebs-provisioner
+  replicas: {{ .Params.PROVISIONER.REPLICAS }}
+  strategy:
+    type: Recreate
+    rollingUpdate: null
   template:
     metadata:
       labels:
-        app: {{ template "openebs.name" . }}
-        release: {{ .Release.Name }}
+        app: {{ .OperatorName }}
         component: provisioner
         name: openebs-provisioner
         openebs.io/component-name: openebs-provisioner
-        openebs.io/version: {{ .Values.release.version }}
+        openebs.io/version: {{ .Params.APP_VERSION }}
     spec:
-      serviceAccountName: {{ template "openebs.serviceAccountName" . }}
+      serviceAccountName: {{ .OperatorName }}-maya-operator
       containers:
-      - name: {{ template "openebs.name" . }}-provisioner
-        image: "{{ .Values.provisioner.image }}:{{ .Values.provisioner.imageTag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      - name: {{ .OperatorName }}-provisioner
+        imagePullPolicy: {{ .Params.IMAGE_PULLPOLICY }}
+        image: quay.io/openebs/openebs-k8s-provisioner:{{ .Params.APP_VERSION }}"
         env:
         # OPENEBS_IO_K8S_MASTER enables openebs provisioner to connect to K8s
         # based on this address. This is ignored if empty.
@@ -47,20 +45,21 @@ spec:
         # This is supported for openebs provisioner version 0.5.2 onwards
         #- name: OPENEBS_IO_KUBE_CONFIG
         #  value: "/home/ubuntu/.kube/config"
-        # OPENEBS_NAMESPACE is the namespace that this provisioner will
-        # lookup to find maya api service
-        - name: OPENEBS_NAMESPACE
-          value: "{{ .Release.Namespace }}"
+
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        # OPENEBS_NAMESPACE is the namespace that this provisioner will
+        # lookup to find maya api service
+        - name: OPENEBS_NAMESPACE
+          value: "{{ .Namespace }}"
         # OPENEBS_MAYA_SERVICE_NAME provides the maya-apiserver K8s service name,
         # that provisioner should forward the volume create/delete requests.
         # If not present, "maya-apiserver-service" will be used for lookup.
         # This is supported for openebs provisioner version 0.5.3-RC1 onwards
         - name: OPENEBS_MAYA_SERVICE_NAME
-          value: "{{ template "openebs.fullname" . }}-apiservice"
+          value: "{{ .OperatorName }}-apiservice"
         # The following values will be set as annotations to the PV object.
         # Refer : https://github.com/openebs/external-storage/pull/15
         #- name: OPENEBS_MONITOR_URL
@@ -68,24 +67,24 @@ spec:
         #- name: OPENEBS_MONITOR_VOLKEY
         #  value: "{{ .Values.provisioner.monitorVolumeKey }}"
         #- name: MAYA_PORTAL_URL
-        #  value: "{{ .Values.provisioner.mayaPortalUrl }}"
+        #  value: "{{ .OperatorName }}-apiservice"
         livenessProbe:
           exec:
             command:
             - pgrep
             - ".*openebs"
-          initialDelaySeconds: {{ .Values.provisioner.healthCheck.initialDelaySeconds }}
-          periodSeconds: {{ .Values.provisioner.healthCheck.periodSeconds }}
-{{- if .Values.provisioner.nodeSelector }}
+          initialDelaySeconds: {{ .Params.PROVISIONER_HC_DELAY }}
+          periodSeconds: {{ .Params.PROVISIONER_HC_PERIOD }}
+{{- if .Params.PROVISIONER_NODE_SELECTOR }}
       nodeSelector:
-{{ toYaml .Values.provisioner.nodeSelector | indent 8 }}
+{{ toYaml .Params.PROVISIONER_NODE_SELECTOR | indent 8 }}
 {{- end }}
-{{- if .Values.provisioner.tolerations }}
+{{- if .Params.PROVISIONER_TOLERATIONS }}
       tolerations:
-{{ toYaml .Values.provisioner.tolerations | indent 8 }}
+{{ toYaml .Params.PROVISIONER_TOLERATIONS | indent 8 }}
 {{- end }}
-{{- if .Values.provisioner.affinity }}
+{{- if .Params.PROVISIONER_AFFINITY }}
       affinity:
-{{ toYaml .Values.provisioner.affinity | indent 8 }}
+{{ toYaml .Params.PROVISIONER_AFFINITY | indent 8 }}
 {{- end }}
 {{- end }}

@@ -1,117 +1,89 @@
-{{- if .Values.snapshotOperator.enabled }}
+{{- if .Params.SNAPSHOTOPERATOR.ENABLED }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "openebs.fullname" . }}-snapshot-operator
+  name: {{ .OperatorName }}-snapshot-operator
+  namespace: {{ .Namespace }}
   labels:
-    app: {{ template "openebs.name" . }}
-    chart: {{ template "openebs.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    app: {{ .OperatorName }}
     component: snapshot-operator
     openebs.io/component-name: openebs-snapshot-operator
-    openebs.io/version: {{ .Values.release.version }}
+    openebs.io/version: {{ .Params.APP_VERSION }}
 spec:
-  replicas: {{ .Values.snapshotOperator.replicas }}
   selector:
     matchLabels:
-      app: {{ template "openebs.name" . }}
-      release: {{ .Release.Name }}
+      app: {{ .OperatorName }}
+      name: openebs-snapshot-operator
+      openebs.io/component-name: openebs-snapshot-operator
+  replicas: {{ .Params.SNAPSHOTOPERATOR_REPLICAS }}
   strategy:
     type: "Recreate"
     rollingUpdate: null
   template:
     metadata:
       labels:
-        app: {{ template "openebs.name" . }}
-        release: {{ .Release.Name }}
+        app: {{ .OperatorName }}
         component: snapshot-operator
         name: openebs-snapshot-operator
-        openebs.io/version: {{ .Values.release.version }}
         openebs.io/component-name: openebs-snapshot-operator
+        openebs.io/version: {{ .Params.APP_VERSION }}
     spec:
-      serviceAccountName: {{ template "openebs.serviceAccountName" . }}
+      serviceAccountName: {{ .OperatorName }}-maya-operator
       containers:
-      - name: {{ template "openebs.name" . }}-snapshot-controller
-        image: "{{ .Values.snapshotOperator.controller.image }}:{{ .Values.snapshotOperator.controller.imageTag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      - name: {{ .OperatorName }}-snapshot-controller
+        image: quay.io/openebs/snapshot-controller:{{ .Params.APP_VERSION }}
+        imagePullPolicy: {{ .Params.IMAGE_PULLPOLICY }}
         env:
-        # OPENEBS_IO_K8S_MASTER enables openebs snapshot controller to connect to K8s
-        # based on this address. This is ignored if empty.
-        # This is supported for openebs snapshot controller version 0.6-RC1 onwards
-        #- name: OPENEBS_IO_K8S_MASTER
-        #  value: "http://10.128.0.12:8080"
-        # OPENEBS_IO_KUBE_CONFIG enables openebs snapshot controller to connect to K8s
-        # based on this config. This is ignored if empty.
-        # This is supported for openebs snapshot controller version 0.6-RC1 onwards
-        #- name: OPENEBS_IO_KUBE_CONFIG
-        #  value: "/home/ubuntu/.kube/config"
-        # OPENEBS_NAMESPACE is the namespace that this snapshot controller will
-        # lookup to find maya api service
         - name: OPENEBS_NAMESPACE
-          value: "{{ .Release.Namespace }}"
+          value: "{{ .Namespace }}"
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        # OPENEBS_MAYA_SERVICE_NAME provides the maya-apiserver K8s service name,
-        # that snapshot controller should forward the volume snapshot requests.
-        # If not present, "maya-apiserver-service" will be used for lookup.
-        # This is supported for openebs snapshot controller version 0.6-RC1 onwards
-        - name: OPENEBS_MAYA_SERVICE_NAME
-          value: "{{ template "openebs.fullname" . }}-apiservice"
         livenessProbe:
           exec:
             command:
             - pgrep
             - ".*controller"
-          initialDelaySeconds: {{ .Values.snapshotOperator.healthCheck.initialDelaySeconds }}
-          periodSeconds: {{ .Values.snapshotOperator.healthCheck.periodSeconds }}
-      - name: {{ template "openebs.name" . }}-snapshot-provisioner
-        image: "{{ .Values.snapshotOperator.provisioner.image }}:{{ .Values.snapshotOperator.provisioner.imageTag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+          initialDelaySeconds: {{ .Params.SNAPSHOTOPERATOR_HC_DELAY }}
+          periodSeconds: {{ .Params.SNAPSHOTOPERATOR_HC_PERIOD }}
+        # OPENEBS_MAYA_SERVICE_NAME provides the maya-apiserver K8s service name,
+        # that snapshot controller should forward the volume snapshot requests.
+        # If not present, "maya-apiserver-service" will be used for lookup.
+        # This is supported for openebs snapshot controller version 0.6-RC1 onwards
+        - name: OPENEBS_MAYA_SERVICE_NAME
+          value: "{{ .OperatorName }}-apiservice"
+      - name: {{ .OperatorName }}-snapshot-provisioner
+        image: quay.io/openebs/snapshot-provisioner:{{ .Params.APP_VERSION }}
+        imagePullPolicy: {{ .Params.IMAGE_PULLPOLICY }}
         env:
-        # OPENEBS_IO_K8S_MASTER enables openebs snapshot provisioner to connect to K8s
-        # based on this address. This is ignored if empty.
-        # This is supported for openebs snapshot provisioner version 0.6-RC1 onwards
-        #- name: OPENEBS_IO_K8S_MASTER
-        #  value: "http://10.128.0.12:8080"
-        # OPENEBS_IO_KUBE_CONFIG enables openebs snapshot provisioner to connect to K8s
-        # based on this config. This is ignored if empty.
-        # This is supported for openebs snapshot provisioner version 0.6-RC1 onwards
-        #- name: OPENEBS_IO_KUBE_CONFIG
-        #  value: "/home/ubuntu/.kube/config"
-        # OPENEBS_NAMESPACE is the namespace that this snapshot provisioner will
-        # lookup to find maya api service
         - name: OPENEBS_NAMESPACE
-          value: "{{ .Release.Namespace }}"
+          value: "{{ .Namespace }}"
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        # OPENEBS_MAYA_SERVICE_NAME provides the maya-apiserver K8s service name,
         # that snapshot provisioner should forward the volume snapshot PV requests.
-        # If not present, "maya-apiserver-service" will be used for lookup.
         # This is supported for openebs snapshot provisioner version 0.6-RC1 onwards
         - name: OPENEBS_MAYA_SERVICE_NAME
-          value: "{{ template "openebs.fullname" . }}-apiservice"
+          value: "{{ .OperatorName }}-apiservice"
         livenessProbe:
           exec:
             command:
             - pgrep
             - ".*provisioner"
-          initialDelaySeconds: {{ .Values.snapshotOperator.healthCheck.initialDelaySeconds }}
-          periodSeconds: {{ .Values.snapshotOperator.healthCheck.periodSeconds }}
-{{- if .Values.snapshotOperator.nodeSelector }}
+          initialDelaySeconds: {{ .Params.SNAPSHOTOPERATOR_HC_DELAY }}
+          periodSeconds: {{ .Params.SNAPSHOTOPERATOR_HC_PERIOD }}
+{{- if .Params.SNAPSHOTOPERATOR_NODE_SELECTOR }}
       nodeSelector:
-{{ toYaml .Values.snapshotOperator.nodeSelector | indent 8 }}
+{{ toYaml .Params.SNAPSHOTOPERATOR_NODE_SELECTOR | indent 8 }}
 {{- end }}
-{{- if .Values.snapshotOperator.tolerations }}
+{{- if .Params.SNAPSHOTOPERATOR_TOLERATIONS }}
       tolerations:
-{{ toYaml .Values.snapshotOperator.tolerations | indent 8 }}
+{{ toYaml .Params.SNAPSHOTOPERATOR_TOLERATIONS | indent 8 }}
 {{- end }}
-{{- if .Values.snapshotOperator.affinity }}
+{{- if .Params.SNAPSHOTOPERATOR_AFFINITY }}
       affinity:
-{{ toYaml .Values.snapshotOperator.affinity | indent 8 }}
+{{ toYaml .Params.SNAPSHOTOPERATOR_AFFINITY | indent 8 }}
 {{- end }}
 {{- end }}
