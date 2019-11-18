@@ -1,240 +1,182 @@
-APP_VERSION:
-  description: "OpenEBS release version. It is also used as the imageTag for OpenEBS container images"
-  default: "1.3.0"
-
-RBAC_ENABLED:
-  description: "Enable RBAC Resources"
-  default: "true"
-
-SERVICE_ACCOUNT_ENABLED:
-  description: "Enable Service Account"
-  default: "true"
-
-ANALYTICS_ENABLED:
-  description: "Enable sending stats to Google Analytics"
-  default: "true"
-
-ANALYTICS_INTERVAL:
-  description: "Duration(hours) between sending ping stat"
-  default: "24h"
-
-IMAGE_PULLPOLICY:
-  description: "Container pull policy"
-  default: "IfNotPresent"
-
-APISERVER_ENABLED:
-  description: "Enable API Server"
-  default: "true"
-
-APISERVER_REPLICAS:
-  description: "Number of API Server Replicas"
-  default: "1"
-
-APISERVER_PORT_INT:
-  description: "Internal Port for the API Server"
-  default: "5656"
-
-APISERVER_PORT_EXT:
-  description: "External Port for the API Server"
-  default: "5656"
-
-APISERVER_NODE_SELECTOR:
-  description: ""
-  default: "{}"
-
-APISERVER_TOLERATIONS:
-  description: ""
-  default: "[]"
-
-APISERVER_AFFINITY:
-  description: ""
-  default: "{}"
-
-APISERVER_HC_DELAY:
-  description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
-  default: "30"
-
-APISERVER_HC_PERIOD:
-  description: "How often (in seconds) to perform the probe. Default to 60 seconds."
-  default: "60"
-
-PROVISIONER_ENABLED:
-  description: "Enable OpenEBS Provisioner"
-  default: "true"
-
-PROVISIONER_REPLICAS:
-  description: "Number of Provisioner Replicas"
-  default: "1"
-
-PROVISIONER_NODE_SELECTOR:
-  description: ""
-  default: "{}"
-
-PROVISIONER_TOLERATIONS:
-  description: ""
-  default: "[]"
-
-PROVISIONER_AFFINITY:
-  description: ""
-  default: "{}"
-
-PROVISIONER_HC_DELAY:
-  description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
-  default: "30"
-
-PROVISIONER_HC_PERIOD:
-  description: "How often (in seconds) to perform the probe. Default to 60 seconds."
-  default: "60"
-
-STORAGE_DEFAULT:
-  description: "Create the default storage classes"
-  default: "true"
-
-STORAGE_SPARSE_POOL:
-  description: "Create cStor Sparse Pool based on Sparsefile"
-  default: "false"
-
-LOCALPV_ENABLED:
-  description: "Enable OpenEBS Dynamic LocalPV Provisioner"
-  default: "true"
-
-LOCALPV_HOSTPATH_DIR:
-  description: "BasePath for hostPath volumes on Nodes"
-  default: "/var/openebs/local"
-
-LOCALPV_BASEPATH_DIR:
-  description: "BasePath for hostPath volumes on Nodes"
-  default: "/var/openebs/local"
-
-LOCALPV_REPLICAS:
-  description: "Number of LocalPV Provisioner Replicas"
-  default: "1"
-
-LOCALPV_HELPER_IMAGE_VERSION:
-  description: "LocalPV Provisioner Helper Image version"
-  default: "3.8"
-
-LOCALPV_NODE_SELECTOR:
-  description: ""
-  default: "{}"
-
-LOCALPV_TOLERATIONS:
-  description: ""
-  default: "[]"
-
-LOCALPV_AFFINITY:
-  description: ""
-  default: "{}"
-
-LOCALPV_HC_DELAY:
-  description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
-  default: "30"
-
-LOCALPV_HC_PERIOD:
-  description: "How often (in seconds) to perform the probe. Default to 60 seconds."
-  default: "60"
-
-SNAPSHOTOPERATOR_ENABLED:
-  description: "Enable OpenEBS Snapshot Operator"
-  default: "true"
-
-SNAPSHOTOPERATOR_REPLICAS:
-  description: "Number of Snapshot Operator Replicas"
-  default: "1"
-
-SNAPSHOTOPERATOR_NODE_SELECTOR:
-  description: ""
-  default: "{}"
-
-SNAPSHOTOPERATOR_TOLERATIONS:
-  description: ""
-  default: "[]"
-
-SNAPSHOTOPERATOR_AFFINITY:
-  description: ""
-  default: "{}"
-
-SNAPSHOTOPERATOR_HC_DELAY:
-  description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
-  default: "30"
-
-SNAPSHOTOPERATOR_HC_PERIOD:
-  description: "How often (in seconds) to perform the probe. Default to 60 seconds."
-  default: "60"
-
-JIVA_REPLICAS:
-  description: "Number of Jiva Replicas"
-  default: "3"
-
-NDM_ENABLED:
-  description: "Enable Node Disk Manager (NDM)"
-  default: "true"
-
-NDM_VERSION:
-  description: "Node Disk Manager release version. It is used as the imageTag for NDM container image"
-  default: "v0.4.3"
-
-NDM_REPLICAS:
-  description: "Number of Node Disk Manager (NDM) Replicas"
-  default: "1"
-
-NDM_FILTERS_EXCLUDE_VENDORS:
-  description: "Exclude devices with specified vendor"
-  default: "CLOUDBYT,OpenEBS"
-
-NDM_FILTERS_INCLUDE_PATHS:
-  description: "Include devices with specified path patterns"
-  default: ""
-
-NDM_FILTERS_EXCLUDE_PATHS:
-  description: "Exclude devices with specified path patterns"
-  default: "loop,fd0,sr0,/dev/ram,/dev/dm-,/dev/md"
-
-NDM_NODE_SELECTOR:
-  description: ""
-  default: "{}"
-
-NDM_TOLERATIONS:
-  description: ""
-  default: "[]"
-
-NDM_HC_DELAY:
-  description: "Number of seconds after the container has started before liveness probes is initiate$
-  default: "30"
-
-NDM_HC_PERIOD:
-  description: "How often (in seconds) to perform the probe. Default to 60 seconds."
-  default: "60"
-
-NDM_OPERATOR_ENABLED:
-  description: "Enable Node Disk Manager (NDM) Operator"
-  default: "true"
-
-NDM_OPERATOR_CI_VERSION:
-  description: "NDM Operator Cleanup Job Image version. It is used as the imageTag for NDM CLEANUP_JOB_IMAGE"
-  default: "v0.4.3"
-
-NDM_OPERATOR_REPLICAS:
-  description: "Number of Node Disk Manager (NDM) Operator Replicas"
-  default: "1"
-
-NDM_OPERATOR_NODE_SELECTOR:
-  description: ""
-  default: "{}"
-
-NDM_OPERATOR_TOLERATIONS:
-  description: ""
-  default: "[]"
-
-NDM_OPERATOR_READINESS_DELAY:
-  description: "Number of seconds after the container has started before liveness probes is initiate$
-  default: "4"
-
-NDM_OPERATOR_READINESS_PERIOD:
-  description: "How often (in seconds) to perform the probe. Default to 60 seconds."
-  default: "10"
-
-NDM_OPERATOR_FAILURE_THRESHOLD:
-  description: "How often (in seconds) to perform the probe. Default to 60 seconds."
-  default: "1"
-
+apiVersion: kudo.dev/v1beta1
+parameters:
+  - name: APP_VERSION
+    description: "OpenEBS release version. It is also used as the imageTag for OpenEBS container images"
+    default: "1.3.0"
+  - name: RBAC_ENABLED
+    description: "Enable RBAC resources"
+    default: "true"
+  - name: SERVICE_ACCOUNT_ENABLED
+    description: "Enable Service Account"
+    default: "true"
+  - name: ANALYTICS_ENABLED
+    description: "Enable sending stats to Google Analytics"
+    default: "true"
+  - name: ANALYTICS_INTERVAL
+    description: "Duration(hours) between sending ping stat"
+    default: "24h"
+  - name: IMAGE_PULLPOLICY
+    description: "Container pull policy"
+    default: "IfNotPresent"
+  - name: APISERVER_ENABLED
+    description: "Enable API Server"
+    default: "true"
+  - name: APISERVER_REPLICAS
+    description: "Number of API Server Replicas"
+    default: "1"
+  - name: APISERVER_PORT_INT
+    description: "Internal Port for the API Server"
+    default: "5656"
+  - name: APISERVER_PORT_EXT
+    description: "External Port for the API Server"
+    default: "5656"
+  - name: APISERVER_NODE_SELECTOR
+    description: ""
+    default: "{}"
+  - name: APISERVER_TOLERATIONS
+    description: ""
+    default: "[]"
+  - name: APISERVER_AFFINITY
+    description: ""
+    default: "{}"
+  - name: APISERVER_HC_DELAY
+    description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
+    default: "30"
+  - name: APISERVER_HC_PERIOD
+    description: "How often (in seconds) to perform the probe. Default to 60 seconds."
+    default: "60"
+  - name: PROVISIONER_ENABLED
+    description: "Enable OpenEBS Provisioner"
+    default: "true"
+  - name: PROVISIONER_REPLICAS
+    description: "Number of Provisioner Replicas"
+    default: "1"
+  - name: PROVISIONER_NODE_SELECTOR
+    description: ""
+    default: "{}"
+  - name: PROVISIONER_TOLERATIONS
+    description: ""
+    default: "[]"
+  - name: PROVISIONER_AFFINITY
+    description: ""
+    default: "{}"
+  - name: PROVISIONER_HC_DELAY
+    description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
+    default: "30"
+  - name: PROVISIONER_HC_PERIOD
+    description: "How often (in seconds) to perform the probe. Default to 60 seconds."
+    default: "60"
+  - name: STORAGE_DEFAULT
+    description: "Create the default storage classes"
+    default: "true"
+  - name: STORAGE_SPARSE_POOL
+    description: "Create cStor Sparse Pool based on Sparsefile"
+    default: "false"
+  - name: LOCALPV_ENABLED
+    description: "Enable OpenEBS Dynamic LocalPV Provisioner"
+    default: "true"
+  - name: LOCALPV_HOSTPATH_DIR
+    description: "BasePath for hostPath volumes on Nodes"
+    default: "/var/openebs/local"
+  - name: LOCALPV_BASEPATH_DIR
+    description: "BasePath for hostPath volumes on Nodes"
+    default: "/var/openebs/local"
+  - name: LOCALPV_REPLICAS
+    description: "Number of LocalPV Provisioner Replicas"
+    default: "1"
+  - name: LOCALPV_HELPER_IMAGE_VERSION
+    description: "LocalPV Provisioner Helper Image version"
+    default: "3.8"
+  - name: LOCALPV_NODE_SELECTOR
+    description: ""
+    default: "{}"
+  - name: LOCALPV_TOLERATIONS
+    description: ""
+    default: "[]"
+  - name: LOCALPV_AFFINITY
+    description: ""
+    default: "{}"
+  - name: LOCALPV_HC_DELAY
+    description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
+    default: "30"
+  - name: LOCALPV_HC_PERIOD
+    description: "How often (in seconds) to perform the probe. Default to 60 seconds."
+    default: "60"
+  - name: SNAPSHOTOPERATOR_ENABLED
+    description: "Enable OpenEBS Snapshot Operator"
+    default: "true"
+  - name: SNAPSHOTOPERATOR_REPLICAS
+    description: "Number of Snapshot Operator Replicas"
+    default: "1"
+  - name: SNAPSHOTOPERATOR_NODE_SELECTOR
+    description: ""
+    default: "{}"
+  - name: SNAPSHOTOPERATOR_TOLERATIONS
+    description: ""
+    default: "[]"
+  - name: SNAPSHOTOPERATOR_AFFINITY
+    description: ""
+    default: "{}"
+  - name: SNAPSHOTOPERATOR_HC_DELAY
+    description: "Number of seconds after the container has started before liveness probes is initiated. Defaults to 30."
+    default: "30"
+  - name: SNAPSHOTOPERATOR_HC_PERIOD
+    description: "How often (in seconds) to perform the probe. Default to 60 seconds."
+    default: "60"
+  - name: JIVA_REPLICAS
+    description: "Number of Jiva Replicas"
+    default: "3"
+  - name: NDM_ENABLED
+    description: "Enable Node Disk Manager (NDM)"
+    default: "true"
+  - name: NDM_VERSION
+    description: "Node Disk Manager release version. It is used as the imageTag for NDM container image"
+    default: "v0.4.3"
+  - name: NDM_REPLICAS
+    description: "Number of Node Disk Manager (NDM) Replicas"
+    default: "1"
+  - name: NDM_FILTERS_EXCLUDE_VENDORS
+    description: "Exclude devices with specified vendor"
+    default: "CLOUDBYT,OpenEBS"
+  - name: NDM_FILTERS_INCLUDE_PATHS
+    description: "Include devices with specified path patterns"
+    default: ""
+  - name: NDM_FILTERS_EXCLUDE_PATHS
+    description: "Exclude devices with specified path patterns"
+    default: "loop,fd0,sr0,/dev/ram,/dev/dm-,/dev/md"
+  - name: NDM_NODE_SELECTOR
+    description: ""
+    default: "{}"
+  - name: NDM_TOLERATIONS
+    description: ""
+    default: "[]"
+  - name: NDM_HC_DELAY
+    description: "Number of seconds after the container has started before liveness probes is initiated"
+    default: "30"
+  - name: NDM_HC_PERIOD
+    description: "How often (in seconds) to perform the probe. Default to 60 seconds."
+    default: "60"
+  - name: NDM_OPERATOR_ENABLED
+    description: "Enable Node Disk Manager (NDM) Operator"
+    default: "true"
+  - name: NDM_OPERATOR_CI_VERSION
+    description: "NDM Operator Cleanup Job Image version. It is used as the imageTag for NDM CLEANUP_JOB_IMAGE"
+    default: "v0.4.3"
+  - name: NDM_OPERATOR_REPLICAS
+    description: "Number of Node Disk Manager (NDM) Operator Replicas"
+    default: "1"
+  - name: NDM_OPERATOR_NODE_SELECTOR
+    description: ""
+    default: "{}"
+  - name: NDM_OPERATOR_TOLERATIONS
+    description: ""
+    default: "[]"
+  - name: NDM_OPERATOR_READINESS_DELAY
+    description: "Number of seconds after the container has started before liveness probes is initiated"
+    default: "4"
+  - name: NDM_OPERATOR_READINESS_PERIOD
+    description: "How often (in seconds) to perform the probe. Default to 60 seconds."
+    default: "10"
+  - name: NDM_OPERATOR_FAILURE_THRESHOLD
+    description: "How often (in seconds) to perform the probe. Default to 60 seconds."
+    default: "1"

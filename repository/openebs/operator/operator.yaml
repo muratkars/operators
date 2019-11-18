@@ -8,8 +8,10 @@ maintainers:
     email: murat@mayadata.io
 url: https://openebs.io/
 tasks:
-  deploy:
-    resources:
+  - name: deploy
+    kind: Apply
+    spec:
+      resources:
       - clusterrole.yaml
       - clusterrolebinding.yaml
       - cm-node-disk-manager.yaml
@@ -24,8 +26,10 @@ tasks:
       - service-maya-apiserver.yaml
       - serviceaccount.yaml
       - validationwebhook.yaml
-  update:
-    resources:
+  - name: update
+    kind: Apply
+    spec:
+      resources:
       - clusterrole.yaml
       - clusterrolebinding.yaml
       - cm-node-disk-manager.yaml
@@ -40,8 +44,10 @@ tasks:
       - service-maya-apiserver.yaml
       - serviceaccount.yaml
       - validationwebhook.yaml
-  not-allowed:
-    resources:
+  - name: not-allowed
+    kind: Apply
+    spec:
+      resources:
 
 plans:
   deploy:
